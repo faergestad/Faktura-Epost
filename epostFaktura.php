@@ -22,14 +22,7 @@ while($row2 = $innholdResultat->fetch_assoc()) {
 
 if (mysqli_num_rows($result) > 0) {
     while($row = $result->fetch_assoc()) {
-        /*echo "Prosjekt ID: ".$row['pID']." /  Firma: ".$row['name']." /  Mail: ".$row['mail']."<br>";*/
         fyllFakturaProsjekt($row['pID'],$row['name'],$row['address'],$row['mail'],$row['description'],$row['startDate'], $innholdArr);
-        /*foreach($innholdArr as $item) {
-            if($item['pID'] == $row['pID']) {
-                //echo $item['service']." / Timer: ".$item['hours']." / Pris pr time: ".$item['pricePrHour']." / Utført av: ".$item['fName']." ".$item['lName']."<br>";
-                fyllFakturaInnhold($item['service'],$item['pricePrHour'],$item['hours'],$item['date'],$item['position'],$item['fName'],$item['lName']);
-            }
-        }*/
     }
 } else {
     echo "Ingen oppdrag skal faktureres";
@@ -101,7 +94,6 @@ function fyllFakturaProsjekt($fPid,$fName,$fAddress,$fMail,$fDesc,$fStart, $fArr
         $strLname = iconv('UTF-8', 'windows-1252', $item['lName']);
             if($item['pID'] == $fPid) {
                 $pdf->Cell(130, 5, $item['date']." - ".$item['position']." - ".$strFname." ".$strLname, 1, 0);
-                //$pdf->Cell(130, 5, $item['date']."- ".$item['position']." - ".$item['fName']." ".$item['lName'], 1, 0);
                 $pdf->Cell(30, 5, $item['hours'], 1, 0);
                 $pdf->Cell(29, 5, $item['pricePrHour']*$item['hours'], 1, 1, 'R');
             }
@@ -162,7 +154,7 @@ function fyllFakturaProsjekt($fPid,$fName,$fAddress,$fMail,$fDesc,$fStart, $fArr
     // email stuff
     $mail = new PHPMailer(true);                            // Passing `true` enables exceptions
     try {
-        //Server settings
+        //Server innstillinger
         $mail->SMTPDebug = 0;                               // Enable verbose debug output
         $mail->isSMTP();                                    // Set mailer to use SMTP
         $mail->Host = '';                                   // Specify main and backup SMTP servers
@@ -172,7 +164,7 @@ function fyllFakturaProsjekt($fPid,$fName,$fAddress,$fMail,$fDesc,$fStart, $fArr
         $mail->SMTPSecure = 'ssl';                          // Enable TLS encryption, `ssl` also accepted
         $mail->Port = 465;                                  // TCP port to connect to
     
-        //Recipients
+        //Mottakere
         $mail->setFrom(''); // Bytt ut epost
         // Send til
         //$mail->addAddress('');
@@ -180,18 +172,17 @@ function fyllFakturaProsjekt($fPid,$fName,$fAddress,$fMail,$fDesc,$fStart, $fArr
         //$mail->addCC('');
         //$mail->addBCC('');
     
-        //Attachments
-        //$mail->addAttachment('/var/tmp/file.tar.gz');             // Add attachments
-        $mail->addStringAttachment($pdfdoc, 'faktura.pdf');         // Optional name
+        //Vedlegg
+        $mail->addStringAttachment($pdfdoc, 'faktura.pdf');
     
-        //Content
-        $mail->isHTML(true);                                        // Set email format to HTML
+        //Epostinnhold
+        $mail->isHTML(true);
         $mail->Subject = 'Timeregistrering og fakturahåndtering';
         $mail->Body    = 'Vedlagt finner du din faktura';
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
     
         $mail->send();
-        echo 'Message has been sent <br>';
+        echo 'Mailen er sendt <br>';
     } catch (Exception $e) {
         echo $e;
     }
